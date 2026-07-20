@@ -1,4 +1,4 @@
-import { MockPlayerRepository } from "../../../../backend/mockPlayerRepository.js";
+import { MockPlayerRepository } from "../../../backend/mockPlayerRepository.js";
 
 export const repository = new MockPlayerRepository();
 
