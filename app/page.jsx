@@ -9,7 +9,7 @@ export default function Page() {
         <div className="topbar-actions">
           <span id="lastUpdated" className="timestamp">Last Updated: --</span>
           <button id="refreshBtn" className="icon-button" type="button" title="Refresh data" aria-label="Refresh data">
-            <span aria-hidden="true">R</span>
+            <span className="refresh-glyph" aria-hidden="true"></span>
           </button>
           <button id="exportBtn" className="button" type="button">Export CSV</button>
           <button id="excelBtn" className="button" type="button">Export Excel</button>
