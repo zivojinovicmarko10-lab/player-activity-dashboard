@@ -93,6 +93,19 @@ CASINO_API_SUMMARY_PATH=/vip/summary
 
 Only `CASINO_API_BASE_URL` is required to switch from mock data to live API mode. If the API does not have a summary endpoint, leave `CASINO_API_SUMMARY_PATH` empty and the dashboard will compute summary totals from player pages.
 
+For multi-brand API mode, set:
+
+```txt
+CASINO_API_MODE=multi
+CASINO_API_BRANDS_CONFIG=[{"brand":"MrO Casino","prefix":"MRO"}]
+MRO_API_BASE_URL=https://mccmrocasweb.mrocasino.com/MROENQFOCPHSLLUSVPHD/RTGWebAPI
+MRO_API_PLAYERS_PATH=/Player
+MRO_API_PLAYER_PATH=/Player/Player_GetPlayer
+MRO_API_TOKEN=secret-token
+```
+
+Each additional brand can be added by extending `CASINO_API_BRANDS_CONFIG` and adding matching `{PREFIX}_API_*` variables.
+
 `backend/apiPlayerRepository.js` normalizes common Swagger response field names into the dashboard shape:
 
 ```js
