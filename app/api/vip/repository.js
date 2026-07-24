@@ -1,6 +1,6 @@
-import { MockPlayerRepository } from "../../../backend/mockPlayerRepository.js";
+import { createPlayerRepository } from "../../../backend/repositoryFactory.js";
 
-export const repository = new MockPlayerRepository();
+export const repository = createPlayerRepository();
 
 export function queryFromRequest(request) {
   const url = new URL(request.url);
