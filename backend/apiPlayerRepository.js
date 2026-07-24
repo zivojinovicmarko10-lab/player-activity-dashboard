@@ -112,6 +112,8 @@ export class ApiPlayerRepository {
     this.brandsPath = options.brandsPath || process.env.CASINO_API_BRANDS_PATH || "/brands";
     this.playerPath = options.playerPath || process.env.CASINO_API_PLAYER_PATH || "/players/{id}";
     this.summaryPath = options.summaryPath || process.env.CASINO_API_SUMMARY_PATH || "";
+    this.brandName = options.brandName || "";
+    this.idPrefix = options.idPrefix || "";
   }
 
   isConfigured() {
@@ -151,10 +153,7 @@ export class ApiPlayerRepository {
       const payload = await this.getJson(this.brandsPath);
       const rows = Array.isArray(payload) ? payload : payload.data || payload.items || payload.brands || [];
       const data = rows.map(normalizeBrand).filter(Boolean);
-      return {
-        data: data.length ? data : DEFAULT_BRANDS.map((brand) => ({ value: brand, label: brand })),
-        meta: { lastUpdated: new Date().toISOString() }
-      };
+      return { data: data.length ? data : DEFAULT_BRANDS.map((brand) => ({ value: brand, label: brand })), meta: { lastUpdated: new Date().toISOString() } };
     } catch {
       return {
         data: DEFAULT_BRANDS.map((brand) => ({ value: brand, label: brand })),
@@ -177,6 +176,12 @@ export class ApiPlayerRepository {
 
     const enrichedRows = parsed.rows
       .map(normalizePlayer)
+      .map((player) => ({
+        ...player,
+        id: this.idPrefix && player.id ? `${this.idPrefix}:${player.id}` : player.id,
+        upstreamId: player.id,
+        casinoBrand: player.casinoBrand || this.brandName
+      }))
       .filter((player) => player.lastDepositDate)
       .map((player) => enrichPlayer(player, now))
       .filter((player) => {
@@ -232,7 +237,16 @@ export class ApiPlayerRepository {
   }
 
   async getPlayerById(id) {
-    const payload = await this.getJson(replacePathParams(this.playerPath, { id }));
-    return enrichPlayer(normalizePlayer(payload.data || payload.player || payload), new Date());
+    const upstreamId = this.idPrefix && String(id).startsWith(`${this.idPrefix}:`)
+      ? String(id).slice(this.idPrefix.length + 1)
+      : id;
+    const payload = await this.getJson(replacePathParams(this.playerPath, { id: upstreamId }));
+    const player = normalizePlayer(payload.data || payload.player || payload);
+    return enrichPlayer({
+      ...player,
+      id: this.idPrefix && player.id ? `${this.idPrefix}:${player.id}` : player.id,
+      upstreamId: player.id,
+      casinoBrand: player.casinoBrand || this.brandName
+    }, new Date());
   }
 }
