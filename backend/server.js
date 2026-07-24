@@ -5,12 +5,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "./config.js";
 import { columns } from "./business.js";
-import { MockPlayerRepository } from "./mockPlayerRepository.js";
+import { createPlayerRepository } from "./repositoryFactory.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const frontendDir = path.join(rootDir, "frontend");
-const repository = new MockPlayerRepository();
+const repository = createPlayerRepository();
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
