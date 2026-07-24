@@ -16,6 +16,8 @@ For production, set:
 VIP_DASHBOARD_TOKEN=replace-with-a-long-random-token
 ALLOWED_ORIGINS=https://backoffice.example.com
 PORT=4173
+CASINO_API_BASE_URL=https://api.example.com
+CASINO_API_TOKEN=replace-with-your-api-token
 ```
 
 When `VIP_DASHBOARD_TOKEN` is set, API calls require:
@@ -74,11 +76,48 @@ Exports the current filtered/sorted player set.
 - `format=csv`: CSV file
 - `format=xls`: Excel-compatible HTML workbook
 
+## Swagger / API Integration
+
+The demo uses `backend/mockPlayerRepository.js` unless `CASINO_API_BASE_URL` is set. In Vercel, add the upstream Swagger/API details as environment variables:
+
+```txt
+CASINO_API_BASE_URL=https://api.example.com
+CASINO_API_TOKEN=secret-token-from-your-api-provider
+CASINO_API_AUTH_HEADER=Authorization
+CASINO_API_AUTH_SCHEME=Bearer
+CASINO_API_PLAYERS_PATH=/players
+CASINO_API_BRANDS_PATH=/brands
+CASINO_API_PLAYER_PATH=/players/{id}
+CASINO_API_SUMMARY_PATH=/vip/summary
+```
+
+Only `CASINO_API_BASE_URL` is required to switch from mock data to live API mode. If the API does not have a summary endpoint, leave `CASINO_API_SUMMARY_PATH` empty and the dashboard will compute summary totals from player pages.
+
+`backend/apiPlayerRepository.js` normalizes common Swagger response field names into the dashboard shape:
+
+```js
+{
+  id,
+  casinoBrand,
+  username,
+  email,
+  totalDepositsLifetime,
+  totalDeposits7d,
+  depositsToday,
+  totalWithdrawalsLifetime,
+  totalWithdrawals7d,
+  withdrawalsToday,
+  lastDepositDate,
+  lastLogin,
+  playerClass
+}
+```
+
+If your Swagger uses different field names, update `normalizePlayer()` in `backend/apiPlayerRepository.js`.
+
 ## Database Integration
 
-The demo uses `backend/mockPlayerRepository.js` because this workspace does not include an existing database or API.
-
-For production, replace the repository with an implementation that pushes pagination, search, filtering, sorting, and summary aggregation into SQL. Keep the API response shape the same so the frontend does not need to change.
+For direct database production use, replace the repository with an implementation that pushes pagination, search, filtering, sorting, and summary aggregation into SQL. Keep the API response shape the same so the frontend does not need to change.
 
 Recommended SQL patterns:
 
